@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "pdcurses/curses.h"
+#include "pdcurses/panel.h"
 
 /* gcc -o hi.exe hi.c -Wall -lpdcurses -mwindows */
 
@@ -19,12 +20,17 @@ short THEME_SECONDARY_INVERSE_ID = 4;
 short THEME_SECONDARY_INVERSE_BG = COLOR_WHITE;
 short THEME_SECONDARY_INVERSE_FG = COLOR_RED;
 
+int KEY_ESC = 27;
 int SCREEN_HEIGHT = 25;
 int SCREEN_WIDTH = 80;
 
 WINDOW* MENU_WINDOW = NULL;
 WINDOW* STATUS_WINDOW = NULL;
 WINDOW* BODY_WINDOW = NULL;
+
+PANEL* MENU_PANEL = NULL;
+PANEL* STATUS_PANEL = NULL;
+PANEL* BODY_PANEL = NULL;
 
 void initializeApplication(void);
 void finalizeApplication(void);
@@ -52,7 +58,11 @@ int main (int argc, char* argv[]) {
   // do stuff
 
   // wait around so we can see things
-  getch();
+  int ch = wgetch(BODY_WINDOW);
+
+  while (ch != KEY_ESC) {
+    ch = wgetch(BODY_WINDOW);
+  }
 
   finalizeApplication();
 
@@ -72,18 +82,33 @@ void initializeApplication() {
   STATUS_WINDOW = newwin(1, SCREEN_WIDTH, (SCREEN_HEIGHT - 1), 0);
   BODY_WINDOW = newwin((SCREEN_HEIGHT - 2), SCREEN_WIDTH, 1, 0);
 
+  MENU_PANEL = new_panel(MENU_WINDOW);
+  STATUS_PANEL = new_panel(STATUS_WINDOW);
+  BODY_PANEL = new_panel(BODY_WINDOW);
+
+  curs_set(0);
+
   clearScreen();
 
   drawMenuBar();
   drawStatusBar();
 
   drawBodyWindow();
+
+  wsetscrreg(BODY_WINDOW, 1, (SCREEN_HEIGHT - 2));
+  scrollok(BODY_WINDOW, TRUE);
+
+  move(1, 0);
+  refresh();
+  curs_set(1);
 }
 
 void finalizeApplication() {
   delwin(BODY_WINDOW);
   delwin(STATUS_WINDOW);
   delwin(MENU_WINDOW);
+
+  curs_set(1);
 }
 
 void clearScreen() {
@@ -104,7 +129,7 @@ void drawMenuBar() {
 
   wclear(MENU_WINDOW);
 
-  wprintw(MENU_WINDOW, "Hi! version 0.01");
+  wprintw(MENU_WINDOW, "Hi! version 0.01 \t File \t Edit \t Help");
 
   wrefresh(MENU_WINDOW);
 }
@@ -117,7 +142,7 @@ void drawBodyWindow() {
 
   wclear(BODY_WINDOW);
 
-  wprintw(BODY_WINDOW, "...");
+  // wmove(BODY_WINDOW, 0, 0);
 
   wrefresh(BODY_WINDOW);
 }

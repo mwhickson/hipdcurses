@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include "pdcurses/curses.h"
-#include "pdcurses/panel.h"
 
 /* gcc -o hi.exe hi.c -Wall -lpdcurses -mwindows */
 
@@ -27,10 +26,6 @@ int SCREEN_WIDTH = 80;
 WINDOW* MENU_WINDOW = NULL;
 WINDOW* STATUS_WINDOW = NULL;
 WINDOW* BODY_WINDOW = NULL;
-
-PANEL* MENU_PANEL = NULL;
-PANEL* STATUS_PANEL = NULL;
-PANEL* BODY_PANEL = NULL;
 
 void initializeApplication(void);
 void finalizeApplication(void);
@@ -82,10 +77,6 @@ void initializeApplication() {
   STATUS_WINDOW = newwin(1, SCREEN_WIDTH, (SCREEN_HEIGHT - 1), 0);
   BODY_WINDOW = newwin((SCREEN_HEIGHT - 2), SCREEN_WIDTH, 1, 0);
 
-  MENU_PANEL = new_panel(MENU_WINDOW);
-  STATUS_PANEL = new_panel(STATUS_WINDOW);
-  BODY_PANEL = new_panel(BODY_WINDOW);
-
   curs_set(0);
 
   clearScreen();
@@ -95,11 +86,6 @@ void initializeApplication() {
 
   drawBodyWindow();
 
-  wsetscrreg(BODY_WINDOW, 1, (SCREEN_HEIGHT - 2));
-  scrollok(BODY_WINDOW, TRUE);
-
-  move(1, 0);
-  refresh();
   curs_set(1);
 }
 
@@ -140,9 +126,12 @@ void drawBodyWindow() {
     wbkgd(BODY_WINDOW, COLOR_PAIR(THEME_PRIMARY_ID));
   }
 
+  wsetscrreg(BODY_WINDOW, 1, (SCREEN_HEIGHT - 2));
+  scrollok(BODY_WINDOW, TRUE);
+
   wclear(BODY_WINDOW);
 
-  // wmove(BODY_WINDOW, 0, 0);
+  wmove(BODY_WINDOW, 0, 0);
 
   wrefresh(BODY_WINDOW);
 }
